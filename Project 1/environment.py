@@ -1,21 +1,11 @@
 import numpy as np
-
-DECK = range(1, 10 + 1)
-ACTIONS = (HIT, STICK) = (0, 1)
-
-DEALER_RANGE = range(1, 10 + 1)  # value of the dealer's first card
-PLAYER_RANGE = range(1, 21 + 1)
-STATE_SPACE_SHAPE = (len(DEALER_RANGE), len(PLAYER_RANGE), len(ACTIONS))
-
-TERMINAL_STATE = "TERMINAL"
-COLOR_PROBS = {"red": 1 / 3, "black": 2 / 3}
-COLOR_COEFFS = {"red": -1, "black": 1}
+import constants
 
 
 def draw_card(color=None):
-    value = np.random.choice(DECK)
+    value = np.random.choice(constants.DECK)
     if color is None:
-        colors, probs = zip(*COLOR_PROBS.items())
+        colors, probs = zip(*constants.COLOR_PROBS.items())
         color = np.random.choice(colors, p=probs)
     return {'value': value, 'color': color}
 
@@ -62,8 +52,8 @@ class Easy21Env:
         self.player = player
 
     def observe(self):
-        if not (self.dealer in DEALER_RANGE and self.player in PLAYER_RANGE):
-            return TERMINAL_STATE
+        if not (self.dealer in constants.DEALER_RANGE and self.player in constants.PLAYER_RANGE):
+            return constants.TERMINAL_STATE
         return np.array((self.dealer, self.player))
 
     def step(self, action):
@@ -76,20 +66,20 @@ class Easy21Env:
         - reward
         """
 
-        if action == HIT:
+        if action == constants.HIT:
             card = draw_card()
-            self.player += COLOR_COEFFS[card['color']] * card['value']
+            self.player += constants.COLOR_COEFFS[card['color']] * card['value']
 
             if bust(self.player):
-                next_state, reward = TERMINAL_STATE, -1
+                next_state, reward = constants.TERMINAL_STATE, -1
             else:
                 next_state, reward = (self.dealer, self.player), 0
-        elif action == STICK:
-            while 0 < self.dealer < 16:
+        elif action == constants.STICK:
+            while 0 < self.dealer < constants.DEALER_STICK_THRES:
                 card = draw_card()
-                self.dealer += COLOR_COEFFS[card['color']] * card['value']
+                self.dealer += constants.COLOR_COEFFS[card['color']] * card['value']
 
-            next_state = TERMINAL_STATE
+            next_state = constants.TERMINAL_STATE
             if bust(self.dealer):
                 reward = 1
             else:
