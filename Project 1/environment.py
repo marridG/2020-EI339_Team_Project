@@ -21,7 +21,7 @@ def draw_card(color=None):
 
 
 def bust(x):
-    return (x < 1 or 21 < x)
+    return x < 1 or 21 < x
 
 
 class Easy21Env:
@@ -50,12 +50,15 @@ class Easy21Env:
     """
 
     def __init__(self):
+        self.dealer, self.player = None, None  # values of the dealer / player
         self.reset()
 
     def reset(self, dealer=None, player=None):
-        if dealer is None: dealer = draw_card()['value']
+        if dealer is None:
+            dealer = draw_card()['value']
         self.dealer = dealer
-        if player is None: player = draw_card()['value']
+        if player is None:
+            player = draw_card()['value']
         self.player = player
 
     def observe(self):
