@@ -44,7 +44,7 @@ class Easy21Env:
     - If the player's sum exceeds 21, or becomes less than 1, then she "goes
       bust" and loses the game (reward -1)
     - If the player sticks then the dealer starts taking turns. The dealer always
-      sticks on any sum of 17 or greater, and hits otherwise. If the dealer goes
+      sticks on any sum of 15 or greater, and hits otherwise. If the dealer goes
       bust, then the player wins; otherwise, the outcome - win (reward +1),
       lose (reward -1), or draw (reward 0) - is the player with the largest sum.
     """
@@ -82,7 +82,7 @@ class Easy21Env:
             else:
                 next_state, reward = (self.dealer, self.player), 0
         elif action == STICK:
-            while 0 < self.dealer < 17:
+            while 0 < self.dealer < 16:
                 card = draw_card()
                 self.dealer += COLOR_COEFFS[card['color']] * card['value']
 
