@@ -29,6 +29,9 @@ class ActionPolicies:
 
         return action
 
+    def greedy_maximum(self, q_table: np.ndarray, state: typing.List[int], **kwargs) -> int:
+        return self.greedy_epsilon(q_table=q_table, state=state, epsilon=0.)
+
 
 if "__main__" == __name__:
     policy_obj = ActionPolicies()
