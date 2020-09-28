@@ -71,7 +71,7 @@ class Easy21Env:
             self.player += constants.COLOR_COEFFS[card['color']] * card['value']
 
             if bust(self.player):
-                next_state, reward = constants.TERMINAL_STATE, -1
+                next_state, reward = (constants.TERMINAL_STATE, constants.TERMINAL_STATE), -1
             else:
                 next_state, reward = (self.dealer, self.player), 0
         elif action == constants.STICK:
@@ -79,7 +79,7 @@ class Easy21Env:
                 card = draw_card()
                 self.dealer += constants.COLOR_COEFFS[card['color']] * card['value']
 
-            next_state = constants.TERMINAL_STATE
+            next_state = (constants.TERMINAL_STATE, constants.TERMINAL_STATE)
             if bust(self.dealer):
                 reward = 1
             else:
