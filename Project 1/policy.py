@@ -6,14 +6,11 @@ import constants
 
 class ActionPolicies:
     def __init__(self):
-        self.greedy_epsilon__EPSILON_DEF = float(0.5)
+        pass
 
     def greedy_epsilon(self, q_table: np.ndarray,
                        state: typing.List[int],
-                       epsilon: float = None) -> int:
-        if epsilon is None:
-            epsilon = self.greedy_epsilon__EPSILON_DEF
-
+                       epsilon: float = 0.5) -> int:
         state_dealer, state_player = state
 
         _rand_val = np.random.rand()
