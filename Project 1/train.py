@@ -36,7 +36,7 @@ class TrainQTable:
             while not constants.judge_state_is_terminate(state_current):
                 action = self.policy_func(
                     q_table=q_table, state=state_current, epsilon=epsilon)
-                state_next, reward = self.env_obj.step(action=action)
+                state_next, reward, _ = self.env_obj.step(action=action)
                 if constants.DEBUG_INFO:
                     print(state_current, action, state_next, reward)
 

@@ -7,8 +7,8 @@ STATE_SPACE_SHAPE = (len(DEALER_RANGE), len(PLAYER_RANGE), len(ACTIONS))
 
 TERMINAL_STATE = "TERMINAL"
 DEALER_STICK_THRES = 16
-COLOR_PROBS = {"red": 1 / 3, "black": 2 / 3}
-COLOR_COEFFS = {"red": -1, "black": 1}
+COLOR_PROBS = {"RED": 1 / 3, "BLACK": 2 / 3}
+COLOR_COEFFS = {"RED": -1, "BLACK": 1}
 
 # DEBUG
 DEBUG_MODE = False

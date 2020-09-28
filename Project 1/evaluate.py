@@ -31,10 +31,16 @@ class EvaluateQTable:
         while not constants.judge_state_is_terminate(state_current):
             action = self.policy_func(
                 q_table=q_table, state=state_current, epsilon=epsilon)
-            state_next, reward = self.env_obj.step(action=action)
+            state_next, reward, card = self.env_obj.step(action=action)
 
             print("{:15}\tDealer={}, Player={}".format("[CURRENT STATE]", state_current[0], state_current[1]))
             print("{:15}\t{}".format("[ACTION]", "STICK" if action else "HIT"))
+            if isinstance(card["color"], str):  # single card
+                print("{:15}\t{}{}".format("[CARD]", {"RED": "-", "BLACK": "+"}[card["color"]], card["value"]))
+            else:  # single/multiple card(s)
+                print("{:15}\t{}".format("[CARD]",
+                                         ", ".join(["(%s%d)" % ({"RED": "-", "BLACK": "+"}[_cd[0]], _cd[1])
+                                                    for _cd in zip(card["color"], card["value"])])))
             print("{:15}\tDealer={}, Player={}".format("[NEXT STATE]", state_next[0], state_next[1]))
             print("{:15}\t{}".format("[REWARD]", reward))
             print()

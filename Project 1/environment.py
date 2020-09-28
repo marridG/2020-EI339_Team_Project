@@ -7,7 +7,7 @@ def draw_card(color=None):
     if color is None:
         colors, probs = zip(*constants.COLOR_PROBS.items())
         color = np.random.choice(colors, p=probs)
-    return {'value': value, 'color': color}
+    return {"value": value, "color": color}
 
 
 def bust(x):
@@ -45,10 +45,10 @@ class Easy21Env:
 
     def reset(self, dealer=None, player=None):
         if dealer is None:
-            dealer = draw_card()['value']
+            dealer = draw_card()["value"]
         self.dealer = dealer
         if player is None:
-            player = draw_card()['value']
+            player = draw_card()["value"]
         self.player = player
 
     def observe(self):
@@ -66,9 +66,10 @@ class Easy21Env:
         - reward
         """
 
+        # PLAYER CHOOSES HIT (0)
         if action == constants.HIT:
             card = draw_card()
-            self.player += constants.COLOR_COEFFS[card['color']] * card['value']
+            self.player += constants.COLOR_COEFFS[card["color"]] * card["value"]
 
             if constants.DEBUG_DEBUG:
                 print("Card:", card["color"], card["value"])
@@ -77,17 +78,26 @@ class Easy21Env:
                 next_state, reward = (constants.TERMINAL_STATE, constants.TERMINAL_STATE), -1
             else:
                 next_state, reward = (self.dealer, self.player), 0
+
+            return np.array(next_state), reward, card
+
+        # PLAYER CHOOSES STICK (1)
         elif action == constants.STICK:
+            _cards_history = {"color": [], "value": []}
             while 0 < self.dealer < constants.DEALER_STICK_THRES:
                 card = draw_card()
-                self.dealer += constants.COLOR_COEFFS[card['color']] * card['value']
+                _cards_history["color"].append(card["color"])
+                _cards_history["value"].append(card["value"])
+                self.dealer += constants.COLOR_COEFFS[card["color"]] * card["value"]
 
             next_state = (constants.TERMINAL_STATE, constants.TERMINAL_STATE)
             if bust(self.dealer):
                 reward = 1
             else:
                 reward = int(self.player > self.dealer) - int(self.player < self.dealer)
+
+            return np.array(next_state), reward, _cards_history
+
+        # ERROR PLAYER ACTION
         else:
             raise ValueError("Action not in action space")
-
-        return np.array(next_state), reward
