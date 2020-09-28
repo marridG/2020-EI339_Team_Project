@@ -1,6 +1,7 @@
 import numpy as np
+import typing
 
-from . import constants
+import constants
 
 
 class ActionPolicies:
@@ -8,10 +9,12 @@ class ActionPolicies:
         self.greedy_epsilon__EPSILON_DEF = float(0.5)
 
     def greedy_epsilon(self, q_table: np.ndarray,
-                       state_dealer: int, state_player: int,
-                       epsilon: float = None):
+                       state: typing.List[int],
+                       epsilon: float = None) -> int:
         if epsilon is None:
             epsilon = self.greedy_epsilon__EPSILON_DEF
+
+        state_dealer, state_player = state
 
         _rand_val = np.random.rand()
         # (1-\epsilon) choose the action of max score in the Q-table
@@ -27,3 +30,11 @@ class ActionPolicies:
                                "\\epsilon @greedy_epsilon policy")
 
         return action
+
+
+if "__main__" == __name__:
+    policy_obj = ActionPolicies()
+    test_q_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
+    test_action = policy_obj.greedy_epsilon(
+        q_table=test_q_table, state=[5, 7], epsilon=0.5)
+    print(test_action)

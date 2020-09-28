@@ -70,6 +70,9 @@ class Easy21Env:
             card = draw_card()
             self.player += constants.COLOR_COEFFS[card['color']] * card['value']
 
+            if constants.DEBUG_MSG:
+                print("Card:", card["color"], card["value"])
+
             if bust(self.player):
                 next_state, reward = (constants.TERMINAL_STATE, constants.TERMINAL_STATE), -1
             else:
