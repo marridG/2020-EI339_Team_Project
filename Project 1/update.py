@@ -17,17 +17,20 @@ class UpdateQTable:
         # 1-st item
         new_val += (1 - self.learning_rate) * \
                    q_table[state_crt[0] - 1, state_crt[1] - 1, action]
-        print("\t", new_val, end=", ")
+        if constants.DEBUG_DEBUG:
+            print("\t", new_val, end=", ")
         # 2-nd item
         new_val += self.learning_rate * reward
-        print(new_val, end=", ")
+        if constants.DEBUG_DEBUG:
+            print(new_val, end=", ")
         # 3-rd item
         if constants.judge_state_is_terminate(state_next):
             pass
         else:
             new_val += self.learning_rate * self.discount_factor * \
                        np.max(q_table[state_next[0] - 1, state_next[1] - 1, :])
-        print(new_val)
+        if constants.DEBUG_DEBUG:
+            print(new_val)
 
         return new_val
 

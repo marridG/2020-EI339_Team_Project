@@ -8,9 +8,9 @@ import update
 env_obj = environment.Easy21Env()
 policy_obj = policy.ActionPolicies()
 # update_obj = None
-learning_rate_values = [0.1, ]
-discount_factor_values = [0.95, ]
-epsilon_values = [0.5, ]
+learning_rate_values = [0.7, ]
+discount_factor_values = [1, ]
+epsilon_values = [0.6, ]
 for learning_rate in learning_rate_values:
     for discount_factor in discount_factor_values:
         update_obj = update.UpdateQTable(
@@ -40,7 +40,7 @@ for learning_rate in learning_rate_values:
                     # update state
                     state_current = state_next
 
-            print(q_table)
-            # np.save(file="lr=%.2f_df=%.2f_ep=%.2f.txt"
-            #              % (learning_rate, discount_factor, epsilon),
-            #         arr=q_table)
+            # print(q_table)
+            np.save(file="lr=%.2f_df=%.2f_ep=%.2f_it=%d"
+                         % (learning_rate, discount_factor, epsilon, constants.TR_EPISODE),
+                    arr=q_table)

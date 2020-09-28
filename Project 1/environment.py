@@ -70,7 +70,7 @@ class Easy21Env:
             card = draw_card()
             self.player += constants.COLOR_COEFFS[card['color']] * card['value']
 
-            if constants.DEBUG_MSG:
+            if constants.DEBUG_DEBUG:
                 print("Card:", card["color"], card["value"])
 
             if bust(self.player):

@@ -13,10 +13,10 @@ COLOR_COEFFS = {"red": -1, "black": 1}
 # DEBUG
 DEBUG_MODE = False
 DEBUG_INFO = DEBUG_MODE and True  # False  #
-DEBUG_MSG = DEBUG_MODE and True  # False  #
+DEBUG_DEBUG = DEBUG_MODE and True  # False  #
 
 # TRAINING SETTINGS
-TR_EPISODE = 100
+TR_EPISODE = 10000
 
 
 def judge_state_is_terminate(state):
