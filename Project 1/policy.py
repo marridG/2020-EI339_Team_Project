@@ -8,7 +8,8 @@ class ActionPolicies:
     def __init__(self):
         pass
 
-    def greedy_epsilon(self, q_table: np.ndarray,
+    @staticmethod
+    def greedy_epsilon(q_table: np.ndarray,
                        state: typing.List[int],
                        epsilon: float = 0.5) -> int:
         state_dealer, state_player = state
