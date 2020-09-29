@@ -14,7 +14,7 @@ class EvaluateQTable:
                  update_func: types.MethodType = None,
                  trained_path: str = "./_trained/"):
         self.env_obj = environment.Easy21Env()
-        self.policy_func = policy_func if policy_func else policy.ActionPolicies().greedy_epsilon
+        self.policy_func = policy_func if policy_func else policy.ActionPolicies().greedy_maximum
         self.update_func = update_func if update_func \
             else update.UpdateQTable().q_function  # learning_rate=0.1, discount_factor=0.5
 
