@@ -11,9 +11,11 @@ import update
 
 class TrainQTable:
     def __init__(self,
+                 train_epoch: int = 10000,
                  policy_func: types.MethodType = None,
                  update_func: types.MethodType = None,
                  output_path: str = "./_trained/"):
+        self.train_epoch = train_epoch
         self.env_obj = environment.Easy21Env()
         self.policy_func = policy_func if policy_func else policy.ActionPolicies().greedy_epsilon
         self.update_func = update_func if update_func \
@@ -29,7 +31,7 @@ class TrainQTable:
         # initiate
         q_table = np.zeros(constants.STATE_SPACE_SHAPE)  # Q-Table
 
-        for ep_idx in tqdm(range(constants.TR_EPISODE)):
+        for ep_idx in tqdm(range(self.train_epoch)):
 
             self.env_obj.reset()
             state_current = self.env_obj.observe()

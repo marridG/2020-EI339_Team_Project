@@ -15,9 +15,6 @@ DEBUG_MODE = False
 DEBUG_INFO = DEBUG_MODE and True  # False  #
 DEBUG_DEBUG = DEBUG_MODE and True  # False  #
 
-# TRAINING SETTINGS
-TR_EPISODE = 10000
-
 
 def judge_state_is_terminate(state):
     is_terminate = TERMINAL_STATE == state[0] \
