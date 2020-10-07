@@ -9,9 +9,9 @@ import train
 import policy
 import update
 
-learning_rate_values = np.linspace(0, 1, 500 + 1)
-discount_factor_values = np.linspace(0, 1, 500 + 1)
-epsilon_values = np.linspace(0, 1, 100 + 1)
+learning_rate_values = np.linspace(0, 1, 25 + 1)[1:-2]
+discount_factor_values = np.linspace(0, 1, 25 + 1)[1:-2]
+epsilon_values = np.linspace(0, 1, 25 + 1)[1:-2]
 
 train_settings = [(lr, df, ep)
                   for lr in learning_rate_values

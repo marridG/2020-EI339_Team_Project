@@ -32,7 +32,7 @@ class TrainQTable:
     def train(self, epsilon: float = 0.5,
               init_filename: str = None, filename: str = "TestOutput") -> None:
         # initiate
-        if os.path.exists(init_filename):
+        if init_filename is not None and os.path.exists(init_filename):
             q_table = np.load(init_filename)
         else:
             q_table = np.zeros(constants.STATE_SPACE_SHAPE)  # Q-Table
@@ -60,6 +60,7 @@ class TrainQTable:
 
         # print(q_table)
         np.save(file=self.output_path + filename, arr=q_table)
+        print("Trained Model Saved:", self.output_path + filename)
 
 
 if "__main__" == __name__:
