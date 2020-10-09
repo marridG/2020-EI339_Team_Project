@@ -32,7 +32,9 @@ def eval_param(trained_model_path:str="./_trained", evaluate_rounds:int = 10000)
             results = {-1: 0, 0: 0, 1: 0, "err": 0}
             for rd in range(evaluate_rounds):
                 terminate_reward = eval_obj.evaluate(
-                    epsilon=setting["epsilon"], filename=model_filename)
+                    epsilon=setting["epsilon"],
+                    filename=model_filename,
+                    show_details=False)
                 try:
                     results[terminate_reward] += 1
                 except KeyError:
@@ -49,6 +51,8 @@ def eval_param(trained_model_path:str="./_trained", evaluate_rounds:int = 10000)
         if _model[1][1]>max_win_cnt:
             max_win_cnt=_model[1][1]
             max_win_rate_setting=_model[0]
+
+    print("\n\n")
     print( max_win_cnt)
     print(max_win_rate_setting)
     print(models_result)
@@ -56,5 +60,5 @@ def eval_param(trained_model_path:str="./_trained", evaluate_rounds:int = 10000)
 
 
 if "__main__" == __name__:
-    eval_param(trained_model_path="./_trained/",evaluate_rounds=1)
+    eval_param(trained_model_path="./_trained/",evaluate_rounds=1000)
 
