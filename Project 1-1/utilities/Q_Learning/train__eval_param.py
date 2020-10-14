@@ -24,21 +24,12 @@ def eval_param(trained_model_path: str = "./_trained/",
             print("Skipped Train Model \"%s\", cuz %s" % (model_filename, str(err)))
             continue
 
-        test_update_obj = update.UpdateQTable(
-            learning_rate=setting["learning rate"],
-            discount_factor=setting["discount factor"])
-        test_update_func = test_update_obj.q_function
-
-        test_policy_func = policy.ActionPolicies().greedy_epsilon
-        eval_obj = evaluate.EvaluateQTable(
-            **{"policy_func": test_policy_func,
-               "update_func": test_update_func, })
+        ql_env_obj.load_model(epsilon=setting["epsilon"], filename=model_filename)
 
         results = {-1: 0, 0: 0, 1: 0, "err": 0}
         for rd in range(evaluate_rounds):
-            terminate_reward = eval_obj.evaluate(
-                epsilon=setting["epsilon"], filename=model_filename,
-                show_details=False)
+            terminate_reward = eval_env_obj.evaluate(
+                **{"action_func": ql_env_obj.action_func})
             try:
                 results[terminate_reward] += 1
             except KeyError:
@@ -72,4 +63,9 @@ def eval_param(trained_model_path: str = "./_trained/",
 
 
 if "__main__" == __name__:
+    eval_env_obj = evaluate.EvaluateEnv(show_details=False)
+
+    policy_func = policy.ActionPolicies().greedy_epsilon
+    ql_env_obj = evaluate.QLearningEnv(**{"policy_func": policy_func})
+
     eval_param(trained_model_path="../../_trained/", evaluate_rounds=1000)
