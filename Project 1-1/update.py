@@ -2,6 +2,7 @@ import numpy as np
 import typing
 
 import constants
+import environment
 
 
 class UpdateQTable:
@@ -67,7 +68,8 @@ class PolicyIterationUpdates:
                 state_action = table_action[dealer - 1, player - 1]
                 state_value_ori = table_value[dealer - 1, player - 1]
 
-                state_value_new = 1  # todo
+                state_value_new = self.calculate_expected_value(
+                    table_value=table_value, dealer=dealer, player=player, action=state_action)
                 table_value[dealer - 1, player - 1] = state_value_new  # update the value table
                 delta = max(delta, abs(state_value_ori - state_value_new))
 
@@ -86,13 +88,35 @@ class PolicyIterationUpdates:
         policy_is_stable = True
         for (dealer, player) in constants.STATE_SPACE:
             policy_action_ori = table_action[dealer - 1, player - 1]
-            policy_action_new = 1  # todo
+
+            policy_action_new = -99
+            policy_action_max_score = -np.inf
+            for action in constants.ACTIONS:
+                _policy_action_score = self.calculate_expected_value(
+                    table_value=table_value, dealer=dealer, player=player, action=action)
+                if _policy_action_score > policy_action_max_score:
+                    policy_action_new = action
+                    policy_action_max_score = _policy_action_score
+
             table_action[dealer - 1, player - 1] = policy_action_new  # update the action table
 
             if policy_action_ori != policy_action_new:
                 policy_is_stable = False
 
         return table_action, policy_is_stable
+
+    def calculate_expected_value(self, table_value, dealer, player, action):
+        newval = 0
+        if action == constants.HIT:
+            for key, value in self.state_trans_hit_prob[player].items():
+                if environment.bust(key):
+                    newval -= value
+                else:
+                    newval += (value * self.discount_factor * table_value[dealer-1][key-1])
+        else:  # action == constants.STICK
+            for key, value in self.state_trans_stick_reward_2_prob[dealer][player].items():
+                newval += key * value
+        return newval
 
 
 if "__main__" == __name__:
@@ -103,14 +127,20 @@ if "__main__" == __name__:
     #     reward=0, state_next=(5, 9))
     # print(test_new_val)
 
-    update_obj = PolicyIterationUpdates(state_trans_hit_prob={1: {0: 0.3}},
-                                        state_trans_stick_reward_2_prob={1: {1: {-1: 0.3}}},
+    update_obj = PolicyIterationUpdates(state_trans_hit_prob=constants.state_trans_hit_prob,
+                                        state_trans_stick_reward_2_prob=constants.state_trans_stick_reward_2_prob,
                                         learning_rate=0.1, discount_factor=0.5)
     test_value_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
     test_action_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
-    test_value_table, test_is_converged, test_iter_cnt = update_obj.policy_evaluation(
-        table_value=test_value_table, table_action=test_action_table,
-        delta_thres=1e-3, max_iter_cnt=1000)
+    for i in range(5):
+        test_value_table, test_is_converged, test_iter_cnt = update_obj.policy_evaluation(
+            table_value=test_value_table, table_action=test_action_table,
+            delta_thres=1e-3, max_iter_cnt=1000)
+
+        test_action_table, test_policy_is_stable = update_obj.policy_improvement(
+            table_value=test_value_table, table_action=test_action_table)
+
     print(test_value_table)
     print(test_is_converged)
     print(test_iter_cnt)
+    print(test_action_table, test_policy_is_stable)
