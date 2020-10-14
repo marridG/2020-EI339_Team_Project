@@ -43,11 +43,11 @@ class UpdateQTable:
 class PolicyIterationUpdates:
     def __init__(self,
                  state_trans_hit_prob: typing.Dict[int, typing.Dict[int, float]],
-                 state_trans_stick_reward_2_prob: typing.Dict[int, typing.Dict[int, typing.Dict[int, float]]],
-                 learning_rate: float = 0.1, discount_factor: float = 0.5):
+                 state_trans_stick_reward_2_prob: typing.Dict[
+                     int, typing.Dict[int, typing.Dict[int, float]]],
+                 discount_factor: float = 0.5):
         self.state_trans_hit_prob = state_trans_hit_prob
         self.state_trans_stick_reward_2_prob = state_trans_stick_reward_2_prob
-        self.learning_rate = learning_rate
         self.discount_factor = discount_factor
 
     def policy_evaluation(self,
@@ -81,8 +81,7 @@ class PolicyIterationUpdates:
                 return table_value, True, iter_cnt
         return table_value, False, iter_cnt
 
-    def policy_improvement(self,
-                           table_value: np.ndarray, table_action: np.ndarray) \
+    def policy_improvement(self, table_value: np.ndarray, table_action: np.ndarray) \
             -> (np.ndarray, bool):
         """
         Update the Action Table
@@ -98,26 +97,30 @@ class PolicyIterationUpdates:
             policy_action_max_score = -np.inf
             for action in constants.ACTIONS:
                 _policy_action_score = self.calculate_expected_value(
-                    table_value=table_value, dealer=dealer, player=player, action=action)
+                    table_value=table_value,
+                    dealer=dealer, player=player, action=action)
                 if _policy_action_score > policy_action_max_score:
                     policy_action_new = action
                     policy_action_max_score = _policy_action_score
 
-            table_action[dealer - 1, player - 1] = policy_action_new  # update the action table
+            # update the action table
+            table_action[dealer - 1, player - 1] = policy_action_new
 
             if policy_action_ori != policy_action_new:
                 policy_is_stable = False
 
         return table_action, policy_is_stable
 
-    def calculate_expected_value(self, table_value: np.ndarray, dealer: int, player: int, action: int) -> float:
+    def calculate_expected_value(self, table_value: np.ndarray,
+                                 dealer: int, player: int, action: int) -> float:
         new_val = 0
         if action == constants.HIT:
             for key, value in self.state_trans_hit_prob[player].items():
                 if environment.bust(key):
                     new_val -= value
                 else:
-                    new_val += (value * self.discount_factor * table_value[dealer - 1][key - 1])
+                    new_val += (value * self.discount_factor *
+                                table_value[dealer - 1][key - 1])
         else:  # action == constants.STICK
             for key, value in self.state_trans_stick_reward_2_prob[dealer][player].items():
                 new_val += key * value
@@ -134,7 +137,7 @@ if "__main__" == __name__:
 
     update_obj = PolicyIterationUpdates(state_trans_hit_prob=constants.state_trans_hit_prob,
                                         state_trans_stick_reward_2_prob=constants.state_trans_stick_reward_2_prob,
-                                        learning_rate=0.1, discount_factor=0.5)
+                                        discount_factor=0.5)
     test_value_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
     test_action_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
 
