@@ -68,14 +68,31 @@ class PolicyIterationUpdates:
                 state_value_ori = table_value[dealer - 1, player - 1]
 
                 state_value_new = 1  # todo
+                table_value[dealer - 1, player - 1] = state_value_new  # update the value table
                 delta = max(delta, abs(state_value_ori - state_value_new))
 
             if delta < delta_thres:
                 return table_value, True, iter_cnt
         return table_value, False, iter_cnt
 
-    def policy_improvement(self):
-        pass
+    def policy_improvement(self, table_value: np.ndarray,
+                           table_action: np.ndarray):
+        """
+        Update the Action Table
+        :param table_value:         Value Table
+        :param table_action:        Action Table
+        :return:
+        """
+        policy_is_stable = True
+        for (dealer, player) in constants.STATE_SPACE:
+            policy_action_ori = table_action[dealer - 1, player - 1]
+            policy_action_new = 1  # todo
+            table_action[dealer - 1, player - 1] = policy_action_new  # update the action table
+
+            if policy_action_ori != policy_action_new:
+                policy_is_stable = False
+
+        return table_action, policy_is_stable
 
 
 if "__main__" == __name__:
