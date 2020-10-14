@@ -37,7 +37,7 @@ class UpdateQTable:
 
 if "__main__" == __name__:
     update_obj = UpdateQTable()  # learning_rate=0.1, discount_factor=0.5
-    test_q_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
+    test_q_table = np.abs(np.random.randn(*constants.STATE_ACTION_SPACE_SHAPE))
     test_new_val = update_obj.q_function(
         q_table=test_q_table, state_crt=(5, 7), action=0,
         reward=0, state_next=(5, 9))

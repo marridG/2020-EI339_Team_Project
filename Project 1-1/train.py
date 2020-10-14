@@ -35,7 +35,7 @@ class TrainQTable:
         if init_filename is not None and os.path.exists(init_filename):
             q_table = np.load(init_filename)
         else:
-            q_table = np.zeros(constants.STATE_SPACE_SHAPE)  # Q-Table
+            q_table = np.zeros(constants.STATE_ACTION_SPACE_SHAPE)  # Q-Table
 
         iter_obj = tqdm(range(self.train_epoch)) if self.progress_bar else range(self.train_epoch)
         for ep_idx in iter_obj:
