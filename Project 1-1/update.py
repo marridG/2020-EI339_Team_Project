@@ -4,6 +4,8 @@ import typing
 import constants
 import environment
 
+state_type_general = typing.TypeVar("state_type_general", str, int)
+
 
 class UpdateQTable:
     def __init__(self, learning_rate: float = 0.1, discount_factor: float = 0.5):
@@ -11,8 +13,10 @@ class UpdateQTable:
         self.discount_factor = discount_factor
 
     def q_function(self, q_table: np.ndarray,
-                   state_crt, action: int, reward: float,
-                   state_next) -> float:
+                   state_crt: typing.Tuple[int, int],
+                   action: int, reward: float,
+                   state_next: typing.Tuple[constants.STATE_TYPE_GENERAL, constants.STATE_TYPE_GENERAL]) \
+            -> float:
         new_val = 0.
 
         # 1-st item
@@ -46,8 +50,8 @@ class PolicyIterationUpdates:
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
 
-    def policy_evaluation(self, table_value: np.ndarray,
-                          table_action: np.ndarray,
+    def policy_evaluation(self,
+                          table_value: np.ndarray, table_action: np.ndarray,
                           delta_thres: float = 1e-3, max_iter_cnt: int = 1000) \
             -> (np.ndarray, bool, int):
         """
@@ -77,8 +81,9 @@ class PolicyIterationUpdates:
                 return table_value, True, iter_cnt
         return table_value, False, iter_cnt
 
-    def policy_improvement(self, table_value: np.ndarray,
-                           table_action: np.ndarray):
+    def policy_improvement(self,
+                           table_value: np.ndarray, table_action: np.ndarray) \
+            -> (np.ndarray, bool):
         """
         Update the Action Table
         :param table_value:         Value Table
@@ -105,18 +110,18 @@ class PolicyIterationUpdates:
 
         return table_action, policy_is_stable
 
-    def calculate_expected_value(self, table_value, dealer, player, action):
-        newval = 0
+    def calculate_expected_value(self, table_value: np.ndarray, dealer: int, player: int, action: int) -> float:
+        new_val = 0
         if action == constants.HIT:
             for key, value in self.state_trans_hit_prob[player].items():
                 if environment.bust(key):
-                    newval -= value
+                    new_val -= value
                 else:
-                    newval += (value * self.discount_factor * table_value[dealer-1][key-1])
+                    new_val += (value * self.discount_factor * table_value[dealer - 1][key - 1])
         else:  # action == constants.STICK
             for key, value in self.state_trans_stick_reward_2_prob[dealer][player].items():
-                newval += key * value
-        return newval
+                new_val += key * value
+        return new_val
 
 
 if "__main__" == __name__:
@@ -132,15 +137,12 @@ if "__main__" == __name__:
                                         learning_rate=0.1, discount_factor=0.5)
     test_value_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
     test_action_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
-    for i in range(5):
+
+    test_policy_is_stable = False
+    while not test_policy_is_stable:
         test_value_table, test_is_converged, test_iter_cnt = update_obj.policy_evaluation(
             table_value=test_value_table, table_action=test_action_table,
             delta_thres=1e-3, max_iter_cnt=1000)
 
         test_action_table, test_policy_is_stable = update_obj.policy_improvement(
             table_value=test_value_table, table_action=test_action_table)
-
-    print(test_value_table)
-    print(test_is_converged)
-    print(test_iter_cnt)
-    print(test_action_table, test_policy_is_stable)
