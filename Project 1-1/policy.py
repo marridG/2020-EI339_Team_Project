@@ -35,7 +35,7 @@ class ActionPolicies:
 
 if "__main__" == __name__:
     policy_obj = ActionPolicies()
-    test_q_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
+    test_q_table = np.abs(np.random.randn(*constants.STATE_ACTION_SPACE_SHAPE))
     test_action = policy_obj.greedy_epsilon(
         q_table=test_q_table, state=[5, 7], epsilon=0.5)
     print(test_action)

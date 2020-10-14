@@ -11,13 +11,17 @@ import update
 
 class TrainQTable:
     def __init__(self,
+                 train_epoch: int = 10000,
                  policy_func: types.MethodType = None,
                  update_func: types.MethodType = None,
-                 output_path: str = "./_trained/"):
+                 output_path: str = "./_trained/",
+                 progress_bar: bool = True):
+        self.train_epoch = train_epoch
         self.env_obj = environment.Easy21Env()
         self.policy_func = policy_func if policy_func else policy.ActionPolicies().greedy_epsilon
         self.update_func = update_func if update_func \
             else update.UpdateQTable().q_function  # learning_rate=0.1, discount_factor=0.5
+        self.progress_bar = progress_bar
 
         self.output_path = output_path
         if not os.path.exists(output_path):
@@ -25,12 +29,16 @@ class TrainQTable:
         if not os.path.exists(output_path):
             raise RuntimeError("[Error] Assigned Output Path too Deep")
 
-    def train(self, epsilon: float = 0.5, filename: str = "TestOutput") -> None:
+    def train(self, epsilon: float = 0.5,
+              init_filename: str = None, filename: str = "TestOutput") -> None:
         # initiate
-        q_table = np.zeros(constants.STATE_SPACE_SHAPE)  # Q-Table
+        if init_filename is not None and os.path.exists(init_filename):
+            q_table = np.load(init_filename)
+        else:
+            q_table = np.zeros(constants.STATE_ACTION_SPACE_SHAPE)  # Q-Table
 
-        for ep_idx in tqdm(range(constants.TR_EPISODE)):
-
+        iter_obj = tqdm(range(self.train_epoch)) if self.progress_bar else range(self.train_epoch)
+        for ep_idx in iter_obj:
             self.env_obj.reset()
             state_current = self.env_obj.observe()
             while not constants.judge_state_is_terminate(state_current):
@@ -52,6 +60,7 @@ class TrainQTable:
 
         # print(q_table)
         np.save(file=self.output_path + filename, arr=q_table)
+        print("Trained Model Saved:", self.output_path + filename)
 
 
 if "__main__" == __name__:
@@ -66,5 +75,8 @@ if "__main__" == __name__:
 
             for _epsilon in epsilon_values:
                 test_policy_func = policy.ActionPolicies().greedy_epsilon
-                train_obj = TrainQTable(**{"policy_func": test_policy_func, "update_func": test_update_func})
+                train_obj = TrainQTable(**{
+                    "policy_func": test_policy_func,
+                    "update_func": test_update_func,
+                    "progress_bar": False})
                 train_obj.train()
