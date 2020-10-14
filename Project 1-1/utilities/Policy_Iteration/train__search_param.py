@@ -1,12 +1,8 @@
-import os
-import types
 import numpy as np
 from tqdm import tqdm
 
 import constants
-import environment
 import train
-import policy
 import update
 
 discount_factor_values = np.linspace(0, 1, 25 + 1)[1:-2]
