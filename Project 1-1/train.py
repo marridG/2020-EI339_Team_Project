@@ -9,6 +9,15 @@ import policy
 import update
 
 
+def check_output_path(output_path: str) -> bool:
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+    if not os.path.exists(output_path):
+        raise RuntimeError("[Error] Assigned Output Path too Deep")
+
+    return True
+
+
 class TrainQTable:
     def __init__(self,
                  train_epoch: int = 10000,
@@ -23,11 +32,8 @@ class TrainQTable:
             else update.UpdateQTable().q_function  # learning_rate=0.1, discount_factor=0.5
         self.progress_bar = progress_bar
 
+        _ = check_output_path(output_path=output_path)
         self.output_path = output_path
-        if not os.path.exists(output_path):
-            os.mkdir(output_path)
-        if not os.path.exists(output_path):
-            raise RuntimeError("[Error] Assigned Output Path too Deep")
 
     def train(self, epsilon: float = 0.5,
               init_filename: str = None, filename: str = "TestOutput") -> None:
@@ -60,6 +66,48 @@ class TrainQTable:
 
         # print(q_table)
         np.save(file=self.output_path + filename, arr=q_table)
+        print("Trained Model Saved:", self.output_path + filename)
+
+
+class TrainPolicyIteration:
+    def __init__(self,
+                 update_obj: update.PolicyIterationUpdates = None,
+                 output_path: str = "./_trained/Policy_Iteration/"):
+        self.update_obj = update_obj if update_obj is not None else \
+            update.PolicyIterationUpdates(
+                state_trans_hit_prob=constants.state_trans_hit_prob,
+                state_trans_stick_reward_2_prob=constants.state_trans_stick_reward_2_prob,
+                discount_factor=0.5)
+
+        _ = check_output_path(output_path=output_path)
+        self.output_path = output_path
+
+    def train(self, epsilon: float = 0.5,
+              init_table_value_filename: str = None,
+              init_table_action_filename: str = None,
+              filename: str = "TestOutput") -> None:
+        # initiate
+        if init_table_value_filename is not None and os.path.exists(init_table_value_filename):
+            table_value = np.load(init_table_value_filename)
+        else:
+            table_value = np.zeros(constants.STATE_SPACE_SHAPE)  # Value Table
+        if init_table_action_filename is not None and os.path.exists(init_table_action_filename):
+            table_action = np.load(init_table_action_filename)
+        else:
+            table_action = np.zeros(constants.STATE_SPACE_SHAPE)  # Value Table
+
+        policy_is_stable = False
+        while not policy_is_stable:
+            table_value, table_value_is_converged, table_value_update_iter_cnt = \
+                self.update_obj.policy_evaluation(
+                    table_value=table_value, table_action=table_action,
+                    delta_thres=1e-3, max_iter_cnt=1000)
+
+            table_action, policy_is_stable = self.update_obj.policy_improvement(
+                table_value=table_value, table_action=table_action)
+
+        # print(q_table)
+        np.save(file=self.output_path + filename, arr=table_action)
         print("Trained Model Saved:", self.output_path + filename)
 
 
