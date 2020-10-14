@@ -44,7 +44,7 @@ class TrainQTable:
             q_table = np.zeros(constants.STATE_ACTION_SPACE_SHAPE)  # Q-Table
 
         iter_obj = tqdm(range(self.train_epoch)) if self.progress_bar else range(self.train_epoch)
-        for ep_idx in iter_obj:
+        for _ in iter_obj:
             self.env_obj.reset()
             state_current = self.env_obj.observe()
             while not constants.judge_state_is_terminate(state_current):
