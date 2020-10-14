@@ -128,6 +128,7 @@ class PolicyIterationUpdates:
 
 
 if "__main__" == __name__:
+    # # Q-Learning
     # update_obj = UpdateQTable()  # learning_rate=0.1, discount_factor=0.5
     # test_q_table = np.abs(np.random.randn(*constants.STATE_ACTION_SPACE_SHAPE))
     # test_new_val = update_obj.q_function(
@@ -135,6 +136,7 @@ if "__main__" == __name__:
     #     reward=0, state_next=(5, 9))
     # print(test_new_val)
 
+    # Policy Iteration
     update_obj = PolicyIterationUpdates(state_trans_hit_prob=constants.state_trans_hit_prob,
                                         state_trans_stick_reward_2_prob=constants.state_trans_stick_reward_2_prob,
                                         discount_factor=0.5)

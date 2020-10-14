@@ -72,4 +72,4 @@ def eval_param(trained_model_path: str = "./_trained/",
 
 
 if "__main__" == __name__:
-    eval_param(trained_model_path="./_trained/", evaluate_rounds=1000)
+    eval_param(trained_model_path="../../_trained/", evaluate_rounds=1000)

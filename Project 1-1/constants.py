@@ -9,7 +9,7 @@ PLAYER_RANGE = range(1, 21 + 1)
 STATE_ACTION_SPACE_SHAPE = (len(DEALER_RANGE), len(PLAYER_RANGE), len(ACTIONS))
 STATE_SPACE_SHAPE = (len(DEALER_RANGE), len(PLAYER_RANGE))
 STATE_SPACE = np.array([[dealer, player] for dealer in DEALER_RANGE for player in PLAYER_RANGE])
-STATE_TYPE_GENERAL = typing.TypeVar("state_type_general", str, int)
+STATE_TYPE_GENERAL = typing.TypeVar("STATE_TYPE_GENERAL", str, int)
 
 
 TERMINAL_STATE = "TERMINAL"

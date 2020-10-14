@@ -23,7 +23,7 @@ class TrainQTable:
                  train_epoch: int = 10000,
                  policy_func: types.MethodType = None,
                  update_func: types.MethodType = None,
-                 output_path: str = "./_trained/",
+                 output_path: str = "./_trained/Q_Learning/",
                  progress_bar: bool = True):
         self.train_epoch = train_epoch
         self.env_obj = environment.Easy21Env()
@@ -82,8 +82,7 @@ class TrainPolicyIteration:
         _ = check_output_path(output_path=output_path)
         self.output_path = output_path
 
-    def train(self, epsilon: float = 0.5,
-              init_table_value_filename: str = None,
+    def train(self, init_table_value_filename: str = None,
               init_table_action_filename: str = None,
               filename: str = "TestOutput") -> None:
         # initiate
@@ -112,19 +111,30 @@ class TrainPolicyIteration:
 
 
 if "__main__" == __name__:
-    learning_rate_values = [0.7, ]
-    discount_factor_values = [1, ]
-    epsilon_values = [0.6, ]
-    for learning_rate in learning_rate_values:
-        for discount_factor in discount_factor_values:
-            test_update_obj = update.UpdateQTable(
-                learning_rate=learning_rate, discount_factor=discount_factor)
-            test_update_func = test_update_obj.q_function
+    # # Q-Learning
+    # learning_rate_values = [0.7, ]
+    # discount_factor_values = [1, ]
+    # epsilon_values = [0.6, ]
+    # for learning_rate in learning_rate_values:
+    #     for discount_factor in discount_factor_values:
+    #         test_update_obj = update.UpdateQTable(
+    #             learning_rate=learning_rate, discount_factor=discount_factor)
+    #         test_update_func = test_update_obj.q_function
+    #
+    #         for _epsilon in epsilon_values:
+    #             test_policy_func = policy.ActionPolicies().greedy_epsilon
+    #             train_obj = TrainQTable(**{
+    #                 "policy_func": test_policy_func,
+    #                 "update_func": test_update_func,
+    #                 "progress_bar": False})
+    #             train_obj.train()
 
-            for _epsilon in epsilon_values:
-                test_policy_func = policy.ActionPolicies().greedy_epsilon
-                train_obj = TrainQTable(**{
-                    "policy_func": test_policy_func,
-                    "update_func": test_update_func,
-                    "progress_bar": False})
-                train_obj.train()
+    # Policy Iteration
+    discount_factor_values = [1, ]
+    for discount_factor in discount_factor_values:
+        test_update_obj = update.PolicyIterationUpdates(
+            state_trans_hit_prob=constants.state_trans_hit_prob,
+            state_trans_stick_reward_2_prob=constants.state_trans_stick_reward_2_prob,
+            discount_factor=discount_factor)
+        train_obj = TrainPolicyIteration(update_obj=test_update_obj)
+        train_obj.train()
