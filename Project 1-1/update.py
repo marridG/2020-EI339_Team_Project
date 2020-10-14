@@ -36,7 +36,12 @@ class UpdateQTable:
 
 
 class PolicyIterationUpdates:
-    def __init__(self, learning_rate: float = 0.1, discount_factor: float = 0.5):
+    def __init__(self,
+                 state_trans_hit_prob: typing.Dict[int, typing.Dict[int, float]],
+                 state_trans_stick_reward_2_prob: typing.Dict[int, typing.Dict[int, typing.Dict[int, float]]],
+                 learning_rate: float = 0.1, discount_factor: float = 0.5):
+        self.state_trans_hit_prob = state_trans_hit_prob
+        self.state_trans_stick_reward_2_prob = state_trans_stick_reward_2_prob
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
 
@@ -62,16 +67,12 @@ class PolicyIterationUpdates:
                 state_action = table_action[dealer - 1, player - 1]
                 state_value_ori = table_value[dealer - 1, player - 1]
 
-                state_value_new = self.policy_evaluation__new_value(
-                    state=(dealer, player), state_action=state_action)
+                state_value_new = 1  # todo
                 delta = max(delta, abs(state_value_ori - state_value_new))
 
             if delta < delta_thres:
                 return table_value, True, iter_cnt
         return table_value, False, iter_cnt
-
-    def policy_evaluation__new_value(self, state: typing.Tuple[int, int], state_action: int):
-        return 1
 
     def policy_improvement(self):
         pass
@@ -85,12 +86,14 @@ if "__main__" == __name__:
     #     reward=0, state_next=(5, 9))
     # print(test_new_val)
 
-    update_obj = PolicyIterationUpdates(learning_rate=0.1, discount_factor=0.5)
+    update_obj = PolicyIterationUpdates(state_trans_hit_prob={1: {0: 0.3}},
+                                        state_trans_stick_reward_2_prob={1: {1: {-1: 0.3}}},
+                                        learning_rate=0.1, discount_factor=0.5)
     test_value_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
     test_action_table = np.abs(np.random.randn(*constants.STATE_SPACE_SHAPE))
-    test_value_table, is_converged, iter_cnt = update_obj.policy_evaluation(
+    test_value_table, test_is_converged, test_iter_cnt = update_obj.policy_evaluation(
         table_value=test_value_table, table_action=test_action_table,
         delta_thres=1e-3, max_iter_cnt=1000)
     print(test_value_table)
-    print(is_converged)
-    print(iter_cnt)
+    print(test_is_converged)
+    print(test_iter_cnt)
