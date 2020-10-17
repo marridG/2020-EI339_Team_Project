@@ -4,17 +4,19 @@ import torch.autograd as autograd
 import pickle
 from utils import *
 
+
 class MLP(nn.Module):
-    '''A simple implementation of the multi-layer neural network'''
+    """A simple implementation of the multi-layer neural network"""
+
     def __init__(self, n_input=7, n_output=6, n_h=2, size_h=128):
-        '''
+        """
         Specify the neural network architecture
 
         :param n_input: The dimension of the input
         :param n_output: The dimension of the output
         :param n_h: The number of the hidden layer
         :param size_h: The dimension of the hidden layer
-        '''
+        """
         super(MLP, self).__init__()
         self.n_input = n_input
         self.fc_in = nn.Linear(n_input, size_h)
@@ -44,9 +46,11 @@ class MLP(nn.Module):
         if type(m) == nn.Linear:
             nn.init.uniform_(m.weight, -0.1, 0.1)
 
+
 class DynamicModel(object):
-    '''Neural network dynamic model '''
-    def __init__(self,config):
+    """Neural network dynamic model """
+
+    def __init__(self, config):
         model_config = config["model_config"]
         self.n_states = model_config["n_states"]
         self.n_actions = model_config["n_actions"]
@@ -75,17 +79,17 @@ class DynamicModel(object):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
 
     def train(self, trainset, testset=0):
-        '''
+        """
         Train the dynamic model with input dataset
 
         :param trainset: (Dictionary) The input training set
         :param testset:  (Dictionary) The input test set
         :return:
-        '''
+        """
         # Normalize the dataset and record data distribution (mean and std)
-        datasets, labels = self.norm_train_data(trainset["data"],trainset["label"])
+        datasets, labels = self.norm_train_data(trainset["data"], trainset["label"])
         if testset != 0:
-            test_datasets, test_labels = self.norm_test_data(testset["data"],testset["label"])
+            test_datasets, test_labels = self.norm_test_data(testset["data"], testset["label"])
         train_dataset = MyDataset(datasets, labels)
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
         total_step = len(train_loader)
@@ -114,26 +118,26 @@ class DynamicModel(object):
         return loss_epochs
 
     def predict(self, x):
-        '''
+        """
         Given the current state and action, predict the next state
 
         :param x: (numpy array) current state and action in one array
         :return: (numpy array) next state numpy array
-        '''
+        """
         x = np.array(x)
         x = self.pre_process(x)
-        x_tensor = self.Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True) # not sure here
+        x_tensor = self.Variable(torch.FloatTensor(x).unsqueeze(0), volatile=True)  # not sure here
         out_tensor = self.model(x_tensor)
         out = out_tensor.cpu().detach().numpy()
         out = self.after_process(out)
         return out
 
     def pre_process(self, x):
-        '''
+        """
         Pre-process the input data
         :param x: (numpy array) current state and action in one array
         :return: (numpy array) normalized input array
-        '''
+        """
         x = (x - self.mean_data) / self.std_data
         return x
 
@@ -142,13 +146,13 @@ class DynamicModel(object):
         return x
 
     def norm_train_data(self, datas, labels):
-        '''
+        """
         Normalize the training data and record the data distribution
 
         :param datas: (numpy array) input data
         :param labels: (numpy array) the label
         :return: (numpy array) normalized data and label
-        '''
+        """
         self.mean_data = np.mean(datas, axis=0)
         self.mean_label = np.mean(labels, axis=0)
         self.std_data = np.std(datas, axis=0)
@@ -158,25 +162,25 @@ class DynamicModel(object):
         return datas, labels
 
     def norm_test_data(self, datas, labels):
-        '''
+        """
         Normalize the test data
 
         :param datas: (numpy array) input data
         :param labels: (numpy array) the label
         :return: (numpy array) normalized data and label
-        '''
+        """
         datas = (datas - self.mean_data) / self.std_data
         labels = (labels - self.mean_label) / self.std_label
         return datas, labels
 
     def validate_model(self, datasets, labels):
-        '''
+        """
         Validate the trained model
 
         :param datasets: (numpy array) input data
         :param labels: (numpy array) corresponding label
         :return: average loss
-        '''
+        """
         test_dataset = MyDataset(datasets, labels)
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=self.batch_size)
         loss_list = []
@@ -189,10 +193,10 @@ class DynamicModel(object):
         loss_avr = np.average(loss_list)
         return loss_avr
 
-    def save_figure(self, epoch, loss_epochs,loss_this_epoch):
-        '''
+    def save_figure(self, epoch, loss_epochs, loss_this_epoch):
+        """
         Save the loss figures
-        '''
+        """
         plt.clf()
         plt.close("all")
         plt.figure(figsize=(12, 5))
@@ -204,8 +208,8 @@ class DynamicModel(object):
         plt.plot(loss_this_epoch)
         plt.savefig("storage/loss-" + str(self.exp_number) + ".png")
 
-    def model_validation(self,env, horizon=40, n_sample=200, mpc=[]):
-        '''
+    def model_validation(self, env, horizon=40, n_sample=200, mpc=[]):
+        """
         Validate the model in the environment
 
         :param env: OpenAI gym style environment
@@ -213,7 +217,7 @@ class DynamicModel(object):
         :param n_sample:
         :param mpc: whether to use the mpc to generate action
         :return: the errors along the horizon
-        '''
+        """
         n_state = env.observation_space.shape[0]
         errors = np.zeros([n_sample, horizon, n_state])
         for i in range(n_sample):
@@ -239,7 +243,7 @@ class DynamicModel(object):
         return errors_mean, errors_max, errors_min, errors_std
 
     def plot_model_validation(self, env, horizon=40, n_sample=200, mpc=[], mode="mean"):
-        ''' Plot the model validation in the simulation environment'''
+        """ Plot the model validation in the simulation environment"""
         if mode == "mean":
             errors = self.model_validation(env, horizon, n_sample, mpc)[0]
         elif mode == "max":
@@ -259,11 +263,13 @@ class DynamicModel(object):
         for i in range(errors.shape[1]):
             plt.plot(errors[:, i], label='state ' + str(i))
             plt.legend()
-        plt.savefig("storage/model_error_exp_"+str(self.exp_number)+".png")
+        plt.savefig("storage/model_error_exp_" + str(self.exp_number) + ".png")
         plt.show()
 
+
 class DatasetFactory(object):
-    '''Manage all the dataset'''
+    """Manage all the dataset"""
+
     def __init__(self, env, config):
         self.env = env
         dataset_config = config["dataset_config"]
@@ -290,9 +296,9 @@ class DatasetFactory(object):
             self.all_dataset = []
 
     def collect_random_dataset(self):
-        '''
+        """
         Collect n_random_episodes data (numpy array) with maximum n_max_steps steps per episode
-        '''
+        """
         datasets = []
         labels = []
         for i in range(self.n_random_episodes):
@@ -330,15 +336,15 @@ class DatasetFactory(object):
         self.random_dataset = {"data": datasets, "label": labels}
         self.all_dataset = self.random_dataset
 
-    def collect_mpc_dataset(self, mpc, dynamic_model, render = False):
-        '''
+    def collect_mpc_dataset(self, mpc, dynamic_model, render=False):
+        """
         Collect reinforced dataset by model predictive control
 
         :param mpc: MPC controller
         :param dynamic_model: System dynamic model
         :param render: Whether render the environment
         :return: list of reward of each episodes
-        '''
+        """
         datasets = []
         labels = []
         reward_episodes = []
@@ -382,16 +388,16 @@ class DatasetFactory(object):
         return reward_episodes
 
     def make_dataset(self):
-        '''
+        """
         Sample the training dataset from MPC-based data and previous data
         :return: (numpy array) trainingset and testset
-        '''
+        """
         # calculate how many samples needed from the all datasets
         all_length = max(int(self.mpc_dataset_len / self.mpc_dataset_split), self.min_train_samples)
         sample_length = all_length - self.mpc_dataset_len
         sample_length = min(self.all_dataset["data"].shape[0], sample_length)
         print("Sample %s training data from all previous dataset, total training sample: %s" % (
-        sample_length, all_length))
+            sample_length, all_length))
         data_and_label = np.concatenate((self.all_dataset["data"], self.all_dataset["label"]), axis=1)
         # Merge the data and label into one array and then shuffle
         np.random.shuffle(data_and_label)
@@ -406,14 +412,14 @@ class DatasetFactory(object):
         testset = {"data": testset_data, "label": testset_label}
         return trainset, testset
 
-    def save_datasets(self,data):
-        '''Save the collected dataset (dictionary)'''
+    def save_datasets(self, data):
+        """Save the collected dataset (dictionary)"""
         print("Saving all datas to %s" % self.save_path)
         with open(self.save_path, 'wb') as f:  # open file with write-mode
             pickle.dump(data, f, -1)  # serialize and save object
 
     def load_dataset(self):
-        '''Load the dataset (dictionary)'''
+        """Load the dataset (dictionary)"""
         print("Load datas from %s" % self.load_path)
         with open(self.load_path, 'rb') as f:
             dataset = pickle.load(f)

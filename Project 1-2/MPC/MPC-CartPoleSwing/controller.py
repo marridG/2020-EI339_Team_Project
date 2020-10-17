@@ -16,12 +16,12 @@ class MPC(object):
         self.evaluator = Evaluator(self.gamma)
 
     def act(self, state, dynamic_model):
-        '''
+        """
         Optimize the action by Artificial Bee Colony algorithm
         :param state: (numpy array) current state
         :param dynamic_model: system dynamic model
         :return: (float) optimal action
-        '''
+        """
         self.evaluator.update(state, dynamic_model)
         optimizer = Hive.BeeHive( lower = [float(self.action_low)] * self.horizon,
                                   upper = [float(self.action_high)] * self.horizon,
