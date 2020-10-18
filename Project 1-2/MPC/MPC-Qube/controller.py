@@ -36,7 +36,6 @@ class MPC(object):
         # Utilities.ConvergencePlot(cost)
         return optimizer.solution[0]
 
-
     def get_action(self, state, dynamic_model):
         self.evaluator.update(state, dynamic_model)
         obs = np.array([state for _ in range(self.max_itrs)])
@@ -52,6 +51,7 @@ class MPC(object):
             obs_next_list.append(obs)
         j = np.argmin(trajectory_cost_list)
         return act_list[0][j]  # 返回一个数组
+
 
 class Evaluator(object):
     def __init__(self, gamma=0.8):
@@ -85,7 +85,6 @@ class Evaluator(object):
         reward = np.exp(-cost) * 0.02
         return reward
 
-
     def get_cost(self, obs, action_n):
         # cos_th, sin_th, cos_al, sin_al, th_d, al_d = obs
         cos_th = obs[:, 0]
@@ -102,4 +101,3 @@ class Evaluator(object):
         action = action_n[:, 0] * 5
         cost = al_mod ** 2 + 5e-3 * al_d ** 2 + 1e-1 * th ** 2 + 2e-2 * th_d ** 2 + 3e-3 * action ** 2
         return cost
-

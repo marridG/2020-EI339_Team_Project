@@ -5,7 +5,7 @@ model_config:
     n_actions: 1 # how many controls we need
     n_hidden: 2 # hidden layer number
     size_hidden: 512 # hidden layer size
-    use_cuda: True
+    use_cuda: False
 
 training_config:
     n_epochs: 100 # how many epoches to train the dynamic model

@@ -10,6 +10,11 @@ _*/
 *.npy
 *.txt
 
+config.yml
+*.ckpt
+storage/
+
+
 # C extensions
 *.so
 
