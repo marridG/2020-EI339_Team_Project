@@ -356,8 +356,14 @@ class DatasetFactory(object):
             for j in range(self.n_max_steps):
                 if render:
                     self.env.render()
-                action = mpc.act(state_old, dynamic_model)
-                action = np.array([action])
+                
+                # # abc optimizer method
+                # action = mpc.act(state_old, dynamic_model)
+                # action = np.array([action])
+
+                # random shooting method
+                action = mpc.get_action(state_old, dynamic_model)
+
                 data_tmp.append(np.concatenate((state_old, action)))
                 state_new, reward, done, info = self.env.step(action)
                 reward_episode += reward
