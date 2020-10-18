@@ -11,10 +11,9 @@ parser = argparse.ArgumentParser(description='Specify the configuraton file path
 parser.add_argument('--path', required=False, type=str, default='config.yml',
                     help='Specify the configuraton file path')
 
-
 args = parser.parse_args()
 
-config_path = args.path # "config.yml"
+config_path = args.path  # "config.yml"
 config = load_config(config_path)
 print_config(config_path)
 
@@ -23,12 +22,12 @@ env = GentlyTerminating(gym.make(env_id))
 
 model = DynamicModel(config)
 
-data_fac = DatasetFactory(env,config)
+data_fac = DatasetFactory(env, config)
 data_fac.collect_random_dataset()
 
-loss = model.train(data_fac.random_trainset,data_fac.random_testset)
-model.plot_model_validation(env,n_sample=200)
-mpc = MPC(env,config)
+loss = model.train(data_fac.random_trainset, data_fac.random_testset)
+model.plot_model_validation(env, n_sample=200)
+mpc = MPC(env, config)
 
 rewards_list = []
 for itr in range(config["dataset_config"]["n_mpc_itrs"]):
