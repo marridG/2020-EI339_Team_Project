@@ -30,34 +30,36 @@ def test(mpc, model):
         print(f"Episode [{i}/{data_fac.n_mpc_episodes}], Reward: {reward_episode:.8f}")
     return reward_episodes
 
-
-env_id = "Qube-v0"  # "CartPole-v0"
+#CartpoleSwingShort-v0
+#BallBalancerSim-v0
+env_id = "Qube-100-v0"
 env = GentlyTerminating(gym.make(env_id))
-config_path = "config.yml"
-config = load_config(config_path)
-print_config(config_path)
-
-config["model_config"]["load_model"] = True
-config["dataset_config"]["load_flag"] = True
-
-model = DynamicModel(config)
-
-data_fac = DatasetFactory(env, config)
-model.norm_train_data(data_fac.all_dataset["data"], data_fac.all_dataset["label"])
-
-mpc = MPC(env, config)
-
-rewards_list = []
-for itr in range(config["dataset_config"]["n_mpc_itrs"]):
-    t = time.time()
-    print("**********************************************")
-    print("The reinforce process [%s], collecting data ..." % itr)
-    rewards = test(mpc, model)
-    rewards_list += rewards
-    plt.close("all")
-    plt.figure(figsize=(12, 5))
-    plt.title('Reward Trend with %s iteration' % itr)
-    plt.plot(rewards_list)
-    plt.savefig("storage/reward-" + str(model.exp_number) + "_test.png")
-    print("Consume %s s in this iteration" % (time.time() - t))
-    loss = model.trai
+anylize_env(env)
+# config_path = "config.yml"
+# config = load_config(config_path)
+# print_config(config_path)
+#
+# config["model_config"]["load_model"] = True
+# config["dataset_config"]["load_flag"] = True
+#
+# model = DynamicModel(config)
+#
+# data_fac = DatasetFactory(env, config)
+# model.norm_train_data(data_fac.all_dataset["data"], data_fac.all_dataset["label"])
+#
+# mpc = MPC(env, config)
+#
+# rewards_list = []
+# for itr in range(config["dataset_config"]["n_mpc_itrs"]):
+#     t = time.time()
+#     print("**********************************************")
+#     print("The reinforce process [%s], collecting data ..." % itr)
+#     rewards = test(mpc, model)
+#     rewards_list += rewards
+#     plt.close("all")
+#     plt.figure(figsize=(12, 5))
+#     plt.title('Reward Trend with %s iteration' % itr)
+#     plt.plot(rewards_list)
+#     plt.savefig("storage/reward-" + str(model.exp_number) + "_test.png")
+#     print("Consume %s s in this iteration" % (time.time() - t))
+#     loss = model.trai
