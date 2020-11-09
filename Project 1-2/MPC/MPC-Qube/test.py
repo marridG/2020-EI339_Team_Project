@@ -5,36 +5,46 @@ from dynamics import *
 from controller import *
 from utils import *
 from quanser_robots.common import GentlyTerminating
+from quanser_robots.qube import Parameterized
+from quanser_robots.qube import SwingUpCtrl
+import matplotlib.pyplot as plt
 import time
 
+env = Parameterized(GentlyTerminating(gym.make('Qube-100-v0')))
 
-def test(mpc, model):
-    reward_episodes = []
-    for i in range(data_fac.n_mpc_episodes):
-        data_tmp = []
-        label_tmp = []
-        reward_episode = 0
-        state_old = data_fac.env.reset()
-        for j in range(data_fac.n_max_steps):
-            env.render()
-            action = mpc.act(state_old, model)
-            action = np.array([action])
-            data_tmp.append(np.concatenate((state_old, action)))
-            state_new, reward, done, info = data_fac.env.step(action)
-            reward_episode += reward
-            label_tmp.append(state_new - state_old)
-            if done:
-                break
-            state_old = state_new
-        reward_episodes.append(reward_episode)
-        print(f"Episode [{i}/{data_fac.n_mpc_episodes}], Reward: {reward_episode:.8f}")
-    return reward_episodes
+# Show all adjustable physics parameters
+print(env.params())
+
+
+# env = GentlyTerminating(gym.make('BallBalancerSim-v0'))
+# obs = env.reset()
+# done = False
+# while not done:
+#     env.render()
+#     act = env.action_space.sample()
+#     obs, _, done, _ = env.step(act)
+#
+# env.close()
+
+
+
+
+
 
 #CartpoleSwingShort-v0
 #BallBalancerSim-v0
-env_id = "Qube-100-v0"
+#Qube-100-v0
+env_id = "CartpoleSwingShort-v0"
 env = GentlyTerminating(gym.make(env_id))
 anylize_env(env)
+
+
+
+
+
+
+
+
 # config_path = "config.yml"
 # config = load_config(config_path)
 # print_config(config_path)
@@ -63,3 +73,27 @@ anylize_env(env)
 #     plt.savefig("storage/reward-" + str(model.exp_number) + "_test.png")
 #     print("Consume %s s in this iteration" % (time.time() - t))
 #     loss = model.trai
+
+
+
+def test(mpc, model):
+    reward_episodes = []
+    for i in range(data_fac.n_mpc_episodes):
+        data_tmp = []
+        label_tmp = []
+        reward_episode = 0
+        state_old = data_fac.env.reset()
+        for j in range(data_fac.n_max_steps):
+            env.render()
+            action = mpc.act(state_old, model)
+            action = np.array([action])
+            data_tmp.append(np.concatenate((state_old, action)))
+            state_new, reward, done, info = data_fac.env.step(action)
+            reward_episode += reward
+            label_tmp.append(state_new - state_old)
+            if done:
+                break
+            state_old = state_new
+        reward_episodes.append(reward_episode)
+        print(f"Episode [{i}/{data_fac.n_mpc_episodes}], Reward: {reward_episode:.8f}")
+    return reward_episodes

@@ -16,28 +16,40 @@ config_path = "config.yml"
 config = load_config(config_path)
 print_config(config_path)
 
-model = DynamicModel(config)
+batchsize_list=[]
+total_rewardlist=[]
+for i in range(4):
+    batchsize_list.append(config["training_config"]["batch_size"])
+    model = DynamicModel(config)
+    data_fac = DatasetFactory(env, config)
+    data_fac.collect_random_dataset()
+    loss = model.train(data_fac.random_trainset, data_fac.random_testset)
+    mpc = MPC(env, config)
+    rewards_list = []
+    for itr in range(config["dataset_config"]["n_mpc_itrs"]//2):
+        t = time.time()
+        print("**********************************************")
+        print("The reinforce process [%s], collecting data ..." % itr)
+        rewards = data_fac.collect_mpc_dataset(mpc, model)
+        trainset, testset = data_fac.make_dataset()
+        rewards_list += rewards
 
-data_fac = DatasetFactory(env, config)
-data_fac.collect_random_dataset()
 
-loss = model.train(data_fac.random_trainset, data_fac.random_testset)
+        print("Consume %s s in this iteration" % (time.time() - t))
+        loss = model.train(trainset, testset)
+    config["training_config"]["batch_size"]*=2
+    total_rewardlist.append(rewards_list)
 
-mpc = MPC(env, config)
 
-rewards_list = []
-for itr in range(config["dataset_config"]["n_mpc_itrs"]):
-    t = time.time()
-    print("**********************************************")
-    print("The reinforce process [%s], collecting data ..." % itr)
-    rewards = data_fac.collect_mpc_dataset(mpc, model)
-    trainset, testset = data_fac.make_dataset()
-    rewards_list += rewards
+print(batchsize_list)
+print(total_rewardlist)
 
-    plt.close("all")
-    plt.figure(figsize=(12, 5))
-    plt.title('Reward Trend with %s iteration' % itr)
-    plt.plot(rewards_list)
-    plt.savefig("storage/reward-" + str(model.exp_number) + ".png")
-    print("Consume %s s in this iteration" % (time.time() - t))
-    loss = model.train(trainset, testset)
+plt.close("all")
+plt.figure(figsize=(12, 5))
+plt.title('Reward Trend with {} iteration' .format(config["dataset_config"]["n_mpc_itrs"]//len(batchsize_list)))
+for i in range(len(batchsize_list)):
+    plt.plot(total_rewardlist[i],label=("batchsize={}".format(batchsize_list[i])))
+plt.legend(loc="upper left")
+plt.show()
+plt.savefig("storage/bsreward-.png")
+

@@ -46,7 +46,7 @@ def print_config(config_path="config.yml"):
         raise Exception("Configuration file is not found in the path: " + config_path)
 
 
-def anylize_env(env, test_episodes=100, max_episode_step=500, render=False):
+def anylize_env(env, test_episodes=100, max_episode_step=1000, render=False):
     print("state space shape: ", env.observation_space.shape)
     print("state space lower bound: ", env.observation_space.low)
     print("state space upper bound: ", env.observation_space.high)

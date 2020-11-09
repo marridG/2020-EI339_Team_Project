@@ -47,6 +47,7 @@ class MPC(object):
             input_data = np.column_stack((obs, actions))
             _actions_costs = self.evaluator.get_cost(obs, actions)
             trajectory_cost_list += _actions_costs
+            print("test shape",trajectory_cost_list.shape)
             obs = dynamic_model.predict(input_data)
             obs_next_list.append(obs)
         j = np.argmin(trajectory_cost_list)

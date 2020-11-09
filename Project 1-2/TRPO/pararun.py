@@ -22,7 +22,7 @@ torch.set_default_tensor_type('torch.DoubleTensor')
 parser = argparse.ArgumentParser(description='PyTorch actor-critic example')
 parser.add_argument('--gamma', type=float, default=0.995, metavar='G',
                     help='discount factor (default: 0.995)')
-parser.add_argument('--env-name', default="Qube-100-v0", metavar='G',
+parser.add_argument('--env-name', default="CartpoleSwingShort-v0", metavar='G',
                     help='name of the environment to run')
 
 #other environment name:CartpoleSwingShort-v0 ,BallBalancerSim-v0 ,Qube-100-v0
@@ -37,11 +37,11 @@ parser.add_argument('--damping', type=float, default=1e-1, metavar='G',
                     help='damping (default: 1e-1)')
 parser.add_argument('--seed', type=int, default=543, metavar='N',
                     help='random seed (default: 1)')
-parser.add_argument('--batch-size', type=int, default=1000, metavar='N',
+parser.add_argument('--batch-size', type=int, default=500, metavar='N',
                     help='random seed (default: 1)')
 parser.add_argument('--render', action='store_true',
                     help='render the environment')
-parser.add_argument('--log-interval', type=int, default=20, metavar='N',
+parser.add_argument('--log-interval', type=int, default=2, metavar='N',
                     help='interval between training status logs (default: 10)')
 args = parser.parse_args()
 
@@ -50,11 +50,6 @@ env = GentlyTerminating(gym.make(args.env_name))
 num_inputs = env.observation_space.shape[0]
 num_actions = env.action_space.shape[0]
 
-env.seed(args.seed)
-torch.manual_seed(args.seed)
-
-policy_net = Policy(num_inputs, num_actions)
-value_net = Value(num_inputs)
 
 
 def select_action(state):
@@ -62,7 +57,6 @@ def select_action(state):
     action_mean, _, action_std = policy_net(Variable(state))
     action = torch.normal(action_mean, action_std)  # 从给定参数means,std的离散正态分布中抽取随机数
     return action
-
 
 def update_params(batch):
     rewards = torch.Tensor(batch.reward)
@@ -142,66 +136,70 @@ def update_params(batch):
     loss=trpo_step(policy_net, get_loss, get_kl, args.max_kl, args.damping)
     return loss
 
-
-running_state = ZFilter((num_inputs,), clip=5)
-running_reward = ZFilter((1,), demean=False, clip=10)
-
 reward_list=[]
-loss_list=[]
-episode_list=[]
+batchsize_list=[]
+for i_para in range(5):
+    episode_list = []
+    reward_tmp=[]
+    env.seed(args.seed)
+    torch.manual_seed(args.seed)
+    policy_net = Policy(num_inputs, num_actions)
+    value_net = Value(num_inputs)
+    batchsize_list.append(args.batch_size)
 
-for i_episode in tqdm(range(4000)):
-    memory = Memory()
+    running_state = ZFilter((num_inputs,), clip=5)
+    running_reward = ZFilter((1,), demean=False, clip=10)
 
-    num_steps = 0
-    reward_batch = 0
-    num_episodes = 0
-    while num_steps < args.batch_size:
-        state = env.reset()
-        state = running_state(state)
+    for i_episode in tqdm(range(200)):
+        memory = Memory()
 
-        reward_sum = 0
-        for t in range(10000):  # Don't infinite loop while learning
-            action = select_action(state)
-            action = action.data[0].numpy()
-            next_state, reward, done, _ = env.step(action)
-            reward_sum += reward
+        num_steps = 0
+        reward_batch = 0
+        num_episodes = 0
+        while num_steps < args.batch_size:
+            state = env.reset()
+            state = running_state(state)
 
-            next_state = running_state(next_state)
+            reward_sum = 0
+            for t in range(10000):  # Don't infinite loop while learning
+                action = select_action(state)
+                action = action.data[0].numpy()
+                next_state, reward, done, _ = env.step(action)
+                reward_sum += reward
 
-            mask = 1
-            if done:
-                mask = 0
+                next_state = running_state(next_state)
 
-            memory.push(state, np.array([action]), mask, next_state, reward)
+                mask = 1
+                if done:
+                    mask = 0
 
-            if args.render:
-                env.render()
-            if done:
-                break
+                memory.push(state, np.array([action]), mask, next_state, reward)
 
-            state = next_state
-        num_steps += (t - 1)
-        num_episodes += 1
-        reward_batch += reward_sum
+                if args.render:
+                    env.render()
+                if done:
+                    break
 
-    reward_batch /= num_episodes
-    batch = memory.sample()  # 1200 transition [5*1200*...]
-    loss = update_params(batch)
-    if i_episode % args.log_interval == 0:
-        loss_list.append(loss.data.item())
-        episode_list.append(i_episode)
-        reward_list.append(reward_batch)
-        # print('Episode {}\tLast reward: {}\tAverage reward {:.2f}'.format(
-        #     i_episode, reward_sum, reward_batch))
+                state = next_state
+            num_steps += (t - 1)
+            num_episodes += 1
+            reward_batch += reward_sum
 
-torch.save(policy_net,'storage/BallBalancer.pkl')
+        reward_batch /= num_episodes
+        batch = memory.sample()  # 1200 transition [5*1200*...]
+        loss = update_params(batch)
+        if i_episode % args.log_interval == 0:
+            episode_list.append(i_episode)
+            reward_tmp.append(reward_batch)
+    reward_list.append(reward_tmp)
+    args.batch_size+=1000
 
+
+print("batchsize",batchsize_list)
 print("episode",episode_list)
-print("loss",loss_list)
 print("reward",reward_list)
 
-zhexiantu(episode_list,reward_list,args.batch_size,args.gamma)
+parazhexian(episode_list,batchsize_list,reward_list,0.995)
 
 
 
