@@ -1,9 +1,9 @@
-# 2020 EI339
+# 2020 EI339 - Team Projects
 Artificial Intelligence  
 2020 Fall, SJTU  
 **by Prof. Jun Z.**
 
-Team Projects
+
 
 
 <br>
